@@ -1,0 +1,464 @@
+---
+title: "Package 'TGST'"
+author: "Yizhen Xu, Tao Liu"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Targeted Gold Standard Testing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+**Type** Package
+
+**Title** Targeted Gold Standard Testing
+
+**Version** 1.0
+
+**Date** "`r Sys.Date()`"
+
+**Authors** Yizhen Xu, Tao Liu
+
+**Maintainer** Yizhen (yizhen_xu@alumni.brown.edu)
+
+**Description** This package implements the optimal allocation of gold standard testing under constrained availability.
+
+**License** GPL
+
+**URL**  https://github.com/yizhenxu/TGST
+
+**Depends** R (>= 3.2.0)
+
+**LazyData** true
+
+<!-- START doctoc -->
+<!-- END doctoc -->
+
+
+###TGST
+
+*Create a TGST Object*
+
+####Description
+
+> Create a TGST object, usually used as an input for optimal rule search and ROC analysis. 
+
+####Usage
+
+> TGST( Z, S, phi, method="nonpar")
+
+####Arguments
+
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp; A vector of true disease status (No disease / treatment success coded as Z=0, diseased / treatment failure coded as Z=1).
+> - **S**  &nbsp;&nbsp;&nbsp;&nbsp;  Risk score.
+> - **phi** Percentage of patients taking gold standard test. 
+> - **method** Method for searching for the optimal tripartite rule, options are "nonpar" (default) and "semipar".
+
+####Value
+
+> An object of class TGST.The class contains 6 slots: phi (percentage of gold standard tests), Z (true failure status), S (risk score), Rules (all possible tripartite rules), Nonparametric (logical indicator of the approach), and FNR.FPR (misclassification rates).
+ 
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10% of patients taking viral load test
+TGST( Z, S, phi, method="nonpar")
+```
+
+_____
+
+
+###Check.exp.tilt
+
+*Check exponential tilt model assumption*
+
+####Description
+
+> This function provides graphical assessment to the suitability of the exponential tilt model for risk score in finding optimal tripartite rules by semiparametric approach.
+$$g_1(s) = exp(\beta_0^*+\beta_1*s)*g_0(s)$$
+
+####Usage
+
+> Check.exp.tilt( Z, S)
+
+
+####Arguments
+
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp; True disease status (No disease / treatment success coded as Z=0, diseased / treatment failure coded as Z=1).
+> - **S**  &nbsp;&nbsp;&nbsp;&nbsp;  Risk score.
+
+####Value
+
+> Returns the plot of empirical density for risk score S, joint empirical density for (S,Z=1) and (S,Z=0), and the density under the exponential tilt model assumption for (S,Z=1) and (S,Z=0).
+
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@alumni.brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+Check.exp.tilt( Z, S)
+```
+_____
+
+###CV.TGST
+
+*Cross Validation*
+
+####Description
+
+> This function allows you to compute the average of misdiagnoses rate for viral failure and the optimal risk under min $\lambda$ rules from K-fold cross-validation.
+
+####Usage
+
+> CV.TGST(Obj, lambda, K=10)
+
+
+####Arguments
+
+> - **Obj** &nbsp;&nbsp;&nbsp;&nbsp; An object of class TGST. 
+> - **lambda** &nbsp;&nbsp;&nbsp;&nbsp; A user-specified weight that reflects relative loss for the two types of misdiagnoses, taking value in [0,1]. 
+$Loss=\lambda*I(FN)+(1-\lambda)*I(FP)$.
+> - **K**  &nbsp;&nbsp;&nbsp;&nbsp; Number of folds in cross validation. The default is 10.
+
+ 
+####Value
+
+> Cross validated results on false classification rates (FNR, FPR), $\lambda-$ risk, total misclassification rate and AUC.
+
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@alumni.brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+data = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10% of patients taking viral load test
+Obj = TVLT(Z, S, phi, method="nonpar")
+CV.TGST(Obj, lambda, K=10)
+```
+
+_____
+
+###OptimalRule
+
+*Optimal Tripartite Rule*
+
+###Description
+
+> This function gives you the optimal tripartite rule that minimizes the min-$\lambda$ risk based on the type of user selected approach. It takes the risk score and true disease status from a training data set and returns the optimal tripartite rule under the specified proportion of patients able to take gold standard test.
+
+####Usage
+
+> OptimalRule(Obj, lambda)
+
+####Arguments
+
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp;
+> - **Obj** &nbsp;&nbsp;&nbsp;&nbsp; An object of class TGST. 
+> - **lambda** &nbsp;&nbsp;&nbsp;&nbsp; A user-specified weight that reflects relative loss for the two types of misdiagnoses, taking value in [0,1]. $Loss=\lambda*I(FN)+(1-\lambda)*I(FP)$.
+
+####Value
+
+> Optimal tripartite rule.  
+
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@alumni.brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10% of patients taking viral load test
+lambda = 0.5
+Obj = TGST(Z, S, phi, method="nonpar")
+OptimalRule(Obj, lambda)
+```
+
+_____
+
+###ROCAnalysis
+
+*ROC Analysis*
+
+####Description
+
+> This function performs ROC analysis for tripartite rules. If 'plot=TRUE', the ROC curve is returned.
+
+####Usage
+
+> ROCAnalysis(Obj, plot=TRUE)
+
+####Arguments
+
+> - **Obj** &nbsp;&nbsp;&nbsp;&nbsp; An object of class TGST.
+> - **plot**  &nbsp;&nbsp;&nbsp;&nbsp;  Logical parameter indicating if ROC curve should be plotted. Default is 'plot=TRUE'. If false, then only AUC is calculated.
+
+####Value
+
+AUC (the area under ROC curve) and ROC curve.
+ 
+####Author(s)
+
+Yizhen Xu (yizhen_xu@alumni.brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10% of patients taking viral load test
+lambda = 0.5
+Obj = TGST(Z, S, phi, method="nonpar")
+ROCAnalysis(Obj, plot=TRUE)
+```
+
+_____
+
+###nonpar.rules
+
+*Nonparametric Rules Set*
+
+####Description
+
+> This function gives you all possible cutoffs [l,u] for tripartite rules, by applying nonparametric search to the given data.
+$$P(S \in [l,u]) \le \phi$$
+
+####Usage
+
+> nonpar.rules( Z, S, phi)
+
+####Arguments
+
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp; True disease status (No disease / treatment success coded as Z=0, diseased / treatment failure coded as Z=1).
+> - **S**  &nbsp;&nbsp;&nbsp;&nbsp;  Risk score.
+> - **phi**  &nbsp;&nbsp;&nbsp;&nbsp;  Percentage of patients taking viral load test.
+ 
+####Value
+
+> Matrix with 2 columns. Each row is a possible tripartite rule, with output on lower and upper cutoff.
+ 
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10\% of patients taking viral load test
+nonpar.rules( Z, S, phi)
+```
+
+_____
+
+###nonpar.fnr.fpr
+
+*Nonparametric FNR FPR of the rules*
+
+####Description
+
+> This function gives you the nonparametric FNRs and FPRs associated with a given set of tripartite rules.
+
+####Usage
+
+> nonpar.fnr.fpr(Z,S,rules[1,1],rules[1,2])
+
+####Arguments
+
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp; True disease status (No disease / treatment success coded as Z=0, diseased / treatment failure coded as Z=1).
+> - **S**  &nbsp;&nbsp;&nbsp;&nbsp;  Risk score.
+> - **l**  &nbsp;&nbsp;&nbsp;&nbsp;  Lower cutoff of tripartite rule. 
+> - **u**  &nbsp;&nbsp;&nbsp;&nbsp;  Upper cutoff of tripartite rule. 
+
+####Value
+
+> Matrix with 2 columns. Each row is a set of nonparametric (FNR, FPR) on an associated tripartite rule.
+ 
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10\% of patients taking viral load test
+rules = nonpar.rules( Z, S, phi)
+nonpar.fnr.fpr(Z,S,rules[1,1],rules[1,2])
+```
+
+_____
+
+###semipar.fnr.fpr
+
+*Semiparametric FNR FPR of the rules*
+
+####Description
+
+> This function gives you the semiparametric FNR and FPR associated with a set of given tripartite rules.
+
+####Usage
+
+> semipar.fnr.fpr(Z,S,rules[1,1],rules[1,2])
+
+####Arguments
+
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp; True disease status (No disease / treatment success coded as Z=0, diseased / treatment failure coded as Z=1).
+> - **S**  &nbsp;&nbsp;&nbsp;&nbsp;  Risk score.
+> - **l**  &nbsp;&nbsp;&nbsp;&nbsp;  Lower cutoff of tripartite rule. 
+> - **u**  &nbsp;&nbsp;&nbsp;&nbsp;  Upper cutoff of tripartite rule. 
+ 
+####Value
+
+> Matrix with 2 columns. Each row is a set of semiparametric (FNR, FPR) on an associated tripartite rule.
+ 
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10\% of patients taking viral load test
+rules = nonpar.rules( Z, S, phi)
+semipar.fnr.fpr(Z,S,rules[1,1],rules[1,2])
+```
+_____
+
+###cal.AUC
+
+*Calculate AUC*
+
+####Description
+
+> This function gives you the AUC associated with the rules set.
+
+####Usage
+
+> cal.AUC(Z,S,rules[,1],rules[,2])
+
+####Arguments
+
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp; True disease status (No disease / treatment success coded as Z=0, diseased / treatment failure coded as Z=1).
+> - **S**  &nbsp;&nbsp;&nbsp;&nbsp;  Risk score.
+> - **l**  &nbsp;&nbsp;&nbsp;&nbsp;  Lower cutoff of tripartite rule. 
+> - **u**  &nbsp;&nbsp;&nbsp;&nbsp;  Upper cutoff of tripartite rule. 
+ 
+####Value
+
+> AUC.
+ 
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+d = Simdata
+Z = d$Z # True Disease Status
+S = d$S # Risk Score
+phi = 0.1 #10% of patients taking viral load test
+rules = nonpar.rules( Z, S, phi)
+cal.AUC(Z,S,rules[,1],rules[,2])
+```
+_____
+
+###Simdata
+
+*Simulated data for package illustration*
+
+####Description
+
+> A simulated dataset containing true disease status and risk score. See details for simulation setting.
+
+####Format
+
+> A data frame with 8000 simulated observations on the following 2 variables.
+> - **Z** &nbsp;&nbsp;&nbsp;&nbsp; True disease status (No disease / treatment success coded as Z=0, diseased / treatment failure coded as Z=1).
+> - **S**  &nbsp;&nbsp;&nbsp;&nbsp;  Risk score. Higher risk score indicates larger tendency of diseased / treatment failure.
+ 
+####Details
+
+> We first simulate true failure status $Z$ assuming $Z\sim Bernoulli(p)$ with $p=0.25$; and then conditional on $Z$, simulate ${S|Z=z}=ceiling(W)$ with $W\sim Gamma(\eta_z,\kappa_z)$ where $\eta$ and $\kappa$ are shape and scale parameters.$(\eta_0,\kappa_0)=(2.3,80)$ and $(\eta_1,\kappa_1)=(9.2,62)$.
+ 
+####Author(s)
+
+> Yizhen Xu (yizhen_xu@brown.edu), Tao Liu, Joseph Hogan
+
+####References
+
+> T. Liu, J. Hogan, L. Wang, S. Zhang, R. Kantor (2013) *Journal of the American Statistical Association* Vol.108, No.504
+
+####Examples
+
+```{r,eval=FALSE}
+data(Simdata)
+summary(Simdata)
+plot(Simdata)
+```
